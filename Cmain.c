@@ -1,74 +1,75 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <signal.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <string.h>
+#include <arpa/inet.h>
+#include "string.h"
 #include "Client.h"
+#define MSG_LEN 256
+#define USERNAME_LEN 32
+#define IP_LEN 16
+
+// Globals
+int clientSocket;
+char username[USERNAME_LEN];
+
+
+
 
 
 int main(){
-    struct addrinfo hints, *res;
-    int sockfd;
-    int a = 0;
 
-    res = init("10.0.2.15", "9000", hints, res);
-   
+    //Username input
+    validInput(username);
 
+    //Create client socket
+    clientSocket = socket(AF_INET , SOCK_STREAM , 0);
+    if (clientSocket == -1) {
+        printf("Error fatal al crear el socket del cliente");
+        exit(-1);
+    }
 
-    char username[32];
+    // Socket address set up
+    struct sockaddr_in serverInfo;
+    struct sockaddr_in clientInfo;
 
-    printf("Ingrese su nombre: \0");
-    scanf("%[^\n]%*c", &username);
+    int serverAddrLen = sizeof(serverInfo);
+    int clientAddrLen = sizeof(clientInfo);
 
-    sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    //Make sure they don't contain garbage
+    memset(&serverInfo, 0, serverAddrLen);
+    memset(&clientInfo, 0, clientAddrLen);
 
-    int conection_status = connect(sockfd, res->ai_addr, res->ai_addrlen);
-
-    send(sockfd, &username, sizeof (username), 0);
-
-    int quit = 0;
-    while(quit == 0){
-
-    	sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-
-	    int conection_status = connect(sockfd, res->ai_addr, res->ai_addrlen);
-
-	    if(conection_status == 0){
-		    char server_response[256];
-
-		    printf("\033[0;36m");
-		    printf("Esciba su mensaje: \0");
-
-		    printf("\033[0m");
-
-		    scanf("%[^\n]%*c", &server_response);
+    serverInfo.sin_addr.s_addr = inet_addr("10.0.2.15"); //TODO cambiar esto por el del .config
+    serverInfo.sin_port = htons(9001);
+    serverInfo.sin_family = AF_INET;
 
 
-		    send(sockfd, &server_response, sizeof(server_response), 0);
+    // Connect to Server
+    int connectStatus = connect(clientSocket, (struct sockaddr *)&serverInfo, serverAddrLen);
+    if (connectStatus == -1) {
+        printf("Error faltal al conectarse con el servidor\n");
+        exit(-1);
+    }
 
-		    if(strcasecmp(server_response, "/quit") != 0){
-		    	recv(sockfd, &server_response, sizeof(server_response), 0);
+    //Send username to server
+    send(clientSocket, username, USERNAME_LEN, 0);
+    
+    //Make a child process
+    int pid = fork();
 
-		    	printf("El servidor envia: %s\n\n", server_response);
-		    }
+    if (pid == 0) {
+        sendMessages(clientSocket);
+    }
 
-		    else{
-	    		quit = 1;
-		    }
-
-	    }
-
-	    else{
-		    printf("La conexion no puede ser establecida");
-		    quit = 1;
-	    }
-
-	}
-
-    close(sockfd);
-
+    else{
+        reciveMessages(clientSocket);
+    }
+    	
+    close(clientSocket);
     return 0;
 }
