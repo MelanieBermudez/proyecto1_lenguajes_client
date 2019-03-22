@@ -33,7 +33,7 @@ void reciveMessages() {
     while (1) {
         int recvStatus = recv(clientSocket, recvBuffer, sizeof(recvBuffer), 0);
         if (recvStatus > 0) {
-            printf(GRN "%s\n" RESET, recvBuffer);
+            printf(GRN "%s\n\n" RESET, recvBuffer);
             fflush(stdout);
             memset(recvBuffer, 0, sizeof(recvBuffer));
         }
@@ -63,14 +63,14 @@ void sendMessages() {
         }
 
         send(clientSocket, sendBuffer, sizeof(sendBuffer), 0);
-	char * buff = sendBuffer;
-	char * user = username;
-	printf("\033[1A");
-	printf("\033[K");
-	char * fixed = fixedMessage(buff,user);
-	printf("%s",fixed);
-	printf("\r\033[1B\r");
-	printf("\033[K");
+    	char * buff = sendBuffer;
+    	char * user = username;
+    	printf("\033[1A");
+    	printf("\033[K");
+    	char * fixed = fixedMessage(buff,user);
+    	printf("%s\n",fixed);
+    	printf("\r\033[1B\r");
+    	printf("\033[K");
         if (strcmp(sendBuffer, "/quit") == 0) {
             break;
         }
@@ -138,7 +138,7 @@ int start(){
     memset(&serverInfo, 0, serverAddrLen);
     memset(&clientInfo, 0, clientAddrLen);
 
-    serverInfo.sin_addr.s_addr = inet_addr("10.0.2.15"); //TODO cambiar esto por el del .config
+    serverInfo.sin_addr.s_addr = inet_addr("192.168.2.181"); //TODO cambiar esto por el del .config
     serverInfo.sin_port = htons(9001);
     serverInfo.sin_family = AF_INET;
 
