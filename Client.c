@@ -23,8 +23,7 @@ void reciveMessages() {
         int recvStatus = recv(clientSocket, recvBuffer, sizeof(recvBuffer), 0);
         if (recvStatus > 0) {
             printf("%s\n", recvBuffer);
-            printf("- ");
-            fflush(stdout);
+            printf("- \0");
             memset(recvBuffer, 0, sizeof(recvBuffer));
         }
 
@@ -70,7 +69,7 @@ void validInput(){
         printf("\nEl usuario no ingresó un nombre. Cerrando el cliente\n");
         exit(-1);
     }
-    
+
 }
 
 void createClient(){
