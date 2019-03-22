@@ -20,13 +20,13 @@ void validInput();
 
 void createClient();
 
-void initialize(struct sockaddr_in*,struct sockaddr_in*);
-
 void connection(struct sockaddr_in*, struct sockaddr_in*);
 
 void reciveMessages();
 
 void sendMessages();
+
+char *fixMessage(char *,char *);
 
 int start();
 
