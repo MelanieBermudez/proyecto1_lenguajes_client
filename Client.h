@@ -16,17 +16,17 @@
 #define IP_LEN 16
 
 
-void validInput(char *);
+void validInput();
 
-void createClient(int *);
+void createClient();
 
-void initialize(struct sockaddr_in*,struct sockaddr_in*,int * ,int*);
+void initialize(struct sockaddr_in*,struct sockaddr_in*);
 
-void connection(int ,struct sockaddr*,int,int,char*);
+void connection(struct sockaddr_in*, struct sockaddr_in*);
 
-void reciveMessages(int );
+void reciveMessages();
 
-void sendMessages(int );
+void sendMessages();
 
 int start();
 
